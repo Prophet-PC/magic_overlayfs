@@ -20,7 +20,7 @@ fi
 loop_setup() {
   unset LOOPDEV
 
-  LOOPDEV=$(losetup -s -f "$1")
+  LOOPDEV=$(/system/bin/losetup -s -f "$1")
   if [[ $? -ne 0 ]]; then
      unset LOOPDEV
   fi
