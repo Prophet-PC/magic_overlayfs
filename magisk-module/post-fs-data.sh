@@ -25,19 +25,11 @@ mount -t tmpfs tmpfs "$MODULEMNT"
 
 loop_setup() {
   unset LOOPDEV
-  local LOOP
-  local MINORX=1
-  [ -e /dev/block/loop1 ] && MINORX=$(stat -Lc '%T' /dev/block/loop1)
-  local NUM=0
-  while [ $NUM -lt 2048 ]; do
-    LOOP=/dev/block/loop$NUM
-    [ -e $LOOP ] || mknod $LOOP b 7 $((NUM * MINORX))
-    if losetup $LOOP "$1" 2>/dev/null; then
-      LOOPDEV=$LOOP
-      break
-    fi
-    NUM=$((NUM + 1))
-  done
+
+  LOOPDEV=$(/system/bin/losetup -s -f "$1")
+  if [[ $? -ne 0 ]]; then
+     unset LOOPDEV
+  fi
 }
 
 if [ -f "$OVERLAYDIR" ]; then
