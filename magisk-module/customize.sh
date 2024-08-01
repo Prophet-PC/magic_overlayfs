@@ -80,7 +80,7 @@ resize_img() {
 }
 
 test_mount_image() {
-    loop_setup /data/adb/overlay
+    loop_setup $MODPATH/overlay.img
     [ -z "$LOOPDEV" ] && return 1
     result_mnt=1
     mount -t ext4 -o rw "$LOOPDEV" "$randdir" && \
@@ -99,16 +99,17 @@ create_ext4_image() {
     return 1
 }
 
-if [ ! -f "/data/adb/overlay" ] || ! test_mount_image; then
-    rm -rf "/data/adb/overlay"
-    ui_print "- Setup 2GB ext4 image at /data/adb/overlay"
+if [ ! -f "$MODPATH/overlay.img" ] || ! test_mount_image; then
+    rm -rf "$MODPATH/overlay.img"
+    ui_print "- Setup 2GB ext4 image at $MODPATH/overlay.img"
     ui_print "  Please wait..."
-    if ! create_ext4_image "/data/adb/overlay" || ! resize_img "/data/adb/overlay" 2000M || ! test_mount_image; then
-        rm -rf /data/adb/overlay
+    if ! create_ext4_image "$MODPATH/overlay.img" || ! resize_img "$MODPATH/overlay.img" 2000M || ! test_mount_image; then
+        rm -rf "$MODPATH/overlay.img"
         abort "! Setup ext4 image failed, abort"
     fi
 fi
 
+mkdir /data/adb/overlay
 mkdir -p "$MODPATH/system/bin"
 chcon -R u:object_r:system_file:s0 "$MODPATH/system"
 chmod -R 755 "$MODPATH/system"
